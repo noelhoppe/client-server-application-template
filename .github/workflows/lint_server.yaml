@@ -1,0 +1,28 @@
+name: 'lint_server.yaml'
+on:
+  - 'workflow_call'
+  - 'workflow_dispatch'
+
+permissions: { }
+
+jobs:
+  checkstyle:
+    runs-on: 'ubuntu-26.04'
+    permissions:
+      checks: 'write'
+      contents: 'read'
+      # Reference: https://github.com/marketplace/actions/checkstyle-for-java#required-permissions
+    steps:
+      - uses: 'actions/checkout@v7.0.1'
+        # https://github.com/marketplace/actions/checkout?version=v7.0.1
+      - uses: 'dbelyaev/action-checkstyle@v3.13.0'
+        # https://github.com/marketplace/actions/checkstyle-for-java
+        with:
+          github_token: '${{secrets.GITHUB_TOKEN }}'
+          workdir: 'server'
+          level: 'warning'
+          reporter: 'github-check'
+          fail_level: 'warning'
+          # See Google Java Style Guide here: https://google.github.io/styleguide/javaguide.html
+          checkstyle_config: 'google_checks.xml'
+          checkstyle_version: '13.8.0'

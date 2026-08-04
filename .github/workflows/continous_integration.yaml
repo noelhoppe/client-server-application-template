@@ -1,0 +1,44 @@
+name: 'continous_integration.yaml'
+on:
+  - 'pull_request'
+  - 'workflow_dispatch'
+
+permissions:
+  contents: 'read'
+  pull-requests: 'write'
+
+jobs:
+  changes:
+    name: 'Check changes'
+    uses: './.github/workflows/detect_changes.yaml'
+
+  lint_server:
+    name: 'Lint server'
+    needs:
+      - 'changes'
+    if: "${{ needs.changes.outputs.server == 'true' || github.event_name == 'workflow_dispatch' }}"
+    uses: './.github/workflows/lint_server.yaml'
+
+  lint_web:
+    name: 'Lint web client'
+    needs:
+      - 'changes'
+    if: "${{ needs.changes.outputs.webclient == 'true' || github.event_name == 'workflow_dispatch' }}"
+    uses: './.github/workflows/lint_web.yaml'
+
+  label_pr:
+    name: 'Label pull request'
+    needs:
+      - 'changes'
+    if: "${{ github.event_name == 'pull_request' }}"
+    uses: './.github/workflows/label_pull_request.yaml'
+    with:
+      github_changed: '${{ needs.changes.outputs.github }}'
+      workflows_changed: '${{ needs.changes.outputs.workflows }}'
+      server_changed: '${{ needs.changes.outputs.server }}'
+      java_changed: '${{ needs.changes.outputs.java }}'
+      clients_changed: '${{ needs.changes.outputs.clients }}'
+      webclient_changed: '${{ needs.changes.outputs.webclient }}'
+      skills_changed: '${{ needs.changes.outputs.skills }}'
+      wiki_changed: '${{ needs.changes.outputs.wiki }}'
+      dependencies_changed: '${{ needs.changes.outputs.dependencies }}'

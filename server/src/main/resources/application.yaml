@@ -1,0 +1,6 @@
+# Configuration file for production (prod) environments.
+# All other environments should override this file with their own configuration values.
+# This ensures "Security by Default / Security by Design" principles are followed.
+spring:
+  application:
+    name: server

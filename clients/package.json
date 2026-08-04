@@ -1,0 +1,22 @@
+{
+  "name": "clients",
+  "version": "0.0.1",
+  "description": "",
+  "license": "MIT",
+  "author": "",
+  "type": "commonjs",
+  "workspaces": [
+    "web",
+    "config/*"
+  ],
+  "scripts": {
+    "web:dev": "npm run dev --workspace=web",
+    "web:build": "npm run build --workspace=web",
+    "web:start": "npm run start --workspace=web",
+    "web:lint": "npm run lint --workspace=web",
+    "web:prettier": "npm run prettier --workspace=web",
+
+    "lint": "npm run lint --workspaces --if-present",
+    "prettier": "npm run prettier --workspaces --if-present"
+  }
+}
