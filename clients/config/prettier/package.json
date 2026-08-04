@@ -1,0 +1,13 @@
+{
+  "name": "@config/prettier",
+  "version": "0.0.1",
+  "description": "Shared prettier configuration for TypeScript based client modules.",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./prettier.config.mts"
+  },
+  "devDependencies": {
+    "prettier": "3.9.6"
+  }
+}

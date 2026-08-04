@@ -1,0 +1,14 @@
+{
+  "name": "@config/tsconfig",
+  "version": "0.0.1",
+  "description": "Shared TypeScript configuration for TypeScript based client modules.",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": "./tsconfig.json"
+  },
+  "devDependencies": {
+    "@tsconfig/recommended": "^1.0.13",
+    "@tsconfig/strictest": "^2.0.8"
+  }
+}

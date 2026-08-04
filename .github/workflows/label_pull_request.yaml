@@ -1,0 +1,105 @@
+name: 'label_pull_request.yaml'
+on:
+  workflow_call:
+    inputs:
+      github_changed:
+        required: true
+        type: 'string'
+      workflows_changed:
+        required: true
+        type: 'string'
+      server_changed:
+        required: true
+        type: 'string'
+      java_changed:
+        required: true
+        type: 'string'
+      clients_changed:
+        required: true
+        type: 'string'
+      webclient_changed:
+        required: true
+        type: 'string'
+      skills_changed:
+        required: true
+        type: 'string'
+      wiki_changed:
+        required: true
+        type: 'string'
+      dependencies_changed:
+        required: true
+        type: 'string'
+  workflow_dispatch:
+
+permissions:
+  contents: 'read'
+  pull-requests: 'write'
+  issues: 'write'
+
+jobs:
+  label_pull_request:
+    if: "${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}"
+    runs-on: 'ubuntu-26.04'
+    steps:
+      - name: 'Apply pull request labels'
+        uses: 'actions/github-script@v9.0.0'
+        with:
+          script: |
+            const inputs = {
+              github_changed: "${{ inputs.github_changed }}",
+              workflows_changed: "${{ inputs.workflows_changed }}",
+              server_changed: "${{ inputs.server_changed }}",
+              java_changed: "${{ inputs.java_changed }}",
+              clients_changed: "${{ inputs.clients_changed }}",
+              webclient_changed: "${{ inputs.webclient_changed }}",
+              skills_changed: "${{ inputs.skills_changed }}",
+              wiki_changed: "${{ inputs.wiki_changed }}",
+              dependencies_changed: "${{ inputs.dependencies_changed }}",
+            };
+
+            const labelDefinitions = [
+              { key: 'area:github', enabled: inputs.github_changed === 'true', color: '424242', description: 'Changes to GitHub files.' },
+              { key: 'area:workflows', enabled: inputs.workflows_changed === 'true', color: '0E8A16', description: 'Changes to GitHub Actions / Worflows (CI/CD).' },
+              { key: 'area:server', enabled: inputs.server_changed === 'true', color: '1D76DB', description: 'Changes to the server module.' },
+              { key: 'area:java', enabled: inputs.java_changed === 'true', color: '5319E7', description: 'Changes to Java code.' },
+              { key: 'area:clients', enabled: inputs.clients_changed === 'true', color: '5319E7', description: 'Changes to the clients module.' },
+              { key: 'area:webclient', inputs.webclient_changed === 'true', color: '5319E7', description: 'Changes to the web client.' },
+              { key: 'area:skills', enabled: inputs.skills_changed === 'true', color: '5319E7', description: 'Changes to agent skills following the agentskills.io specification.' },
+              { key: 'area:wiki', enabled: inputs.wiki_changed === 'true', color: 'FBCA04', description: 'Changes to repository knowledge base content following the Open Knowledgeop Format (OKF).' },
+              { key: 'area:dependencies', enabled: inputs.dependencies_changed === 'true', color: 'D93F0B', description: 'Dependency or SDK changed' },
+            ];
+
+            const desiredLabels = labelDefinitions.filter(label => label.enabled);
+
+            for (const label of desiredLabels) {
+              try {
+                await github.rest.issues.getLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.key,
+                });
+              } catch (error) {
+                if (error.status !== 404) {
+                  throw error;
+                }
+
+                await github.rest.issues.createLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  name: label.key,
+                  color: label.color,
+                  description: label.description,
+                });
+              }
+            }
+
+            const labels = desiredLabels.map(label => label.key);
+
+            if (context.payload.pull_request && labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                labels,
+              });
+            }

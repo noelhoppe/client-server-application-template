@@ -1,0 +1,72 @@
+name: 'detect_changes.yaml'
+on:
+  workflow_call:
+    outputs:
+      github:
+        value: '${{ jobs.changes.outputs.github }}'
+      workflows:
+        value: '${{ jobs.changes.outputs.workflows }}'
+      server:
+        value: '${{ jobs.changes.outputs.server }}'
+      java:
+        value: '${{ jobs.changes.outputs.java }}'
+      clients:
+        value: '${{ jobs.changes.outputs.clients }}'
+      webclient:
+        value: '${{ jobs.changes.outputs.webclient }}'
+      skills:
+        value: '${{ jobs.changes.outputs.skills }}'
+      wiki:
+        value: '${{ jobs.changes.outputs.wiki }}'
+      dependencies:
+        value: '${{ jobs.changes.outputs.dependencies }}'
+  workflow_dispatch:
+
+permissions: { }
+
+jobs:
+  changes:
+    name: 'Detect changes'
+    runs-on: 'ubuntu-26.04'
+    permissions:
+      contents: 'read'
+    outputs:
+      github: '${{ steps.filter.outputs.github }}'
+      workflows: '${{ steps.filter.outputs.workflows }}'
+      server: '${{ steps.filter.outputs.server }}'
+      java: '${{ steps.filter.outputs.java }}'
+      clients: '${{ steps.filter.outputs.clients }}'
+      webclient: '${{ steps.filter.outputs.webclient }}'
+      skills: '${{ steps.filter.outputs.skills }}'
+      wiki: '${{ steps.filter.outputs.wiki }}'
+      dependencies: '${{ steps.filter.outputs.dependencies }}'
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v4'
+      - name: 'Detect changed paths'
+        id: 'filter'
+        uses: 'dorny/paths-filter@v3'
+        with:
+          filters: |
+            github:
+              - '.github/**'
+            workflows:
+              - '.github/workflows/**'
+            server:
+              - 'server/**'
+            java:
+              - 'server/src/main/java/**'
+              - 'server/src/test/java/**'
+            clients:
+              - 'clients/**'
+            webclient:
+              - 'clients/web/**'
+            skills:
+              - 'skills/**'
+            wiki:
+              - 'wiki/**'
+            dependencies:
+              - 'server/pom.xml'
+              - 'server/.sdkmanrc'
+              - 'clients/**/package*.json'
+              - 'clients/**/nvmrc'
