@@ -42,3 +42,10 @@ jobs:
       skills_changed: '${{ needs.changes.outputs.skills }}'
       wiki_changed: '${{ needs.changes.outputs.wiki }}'
       dependencies_changed: '${{ needs.changes.outputs.dependencies }}'
+
+  test_server:
+    name: 'Test server'
+    needs:
+      - 'changes'
+    if: "${{ needs.changes.outputs.server == 'true' || github.event_name == 'workflow_dispatch' }}"
+    uses: './.github/workflows/test_server.yaml'

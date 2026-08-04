@@ -1,0 +1,28 @@
+name: test_server.yaml
+on:
+  - 'pull_request'
+  - 'workflow_dispatch'
+
+permissions: { }
+
+jobs:
+  test:
+    runs-on: 'ubuntu-26.04'
+    permissions:
+      checks: 'write'
+      contents: 'read'
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v7.0.1'
+      - name: 'Change to server module directory'
+        run: 'cd server'
+      - name: 'Run maven test'
+        run: './mvnw test'
+      - name: 'Publish Surefire Test Report'
+        if: success() || failure()
+        uses: 'ScalableCapital/action-surefire-report@v2.0.4'
+        with:
+          github_token: '${{ secrets.GITHUB_TOKEN }}'
+          fail_on_test_failures: 'true'
+          fail_if_no_tests: 'true'
+          ignore_flaky_tests: 'false'
