@@ -14,9 +14,8 @@ jobs:
     steps:
       - name: 'Checkout'
         uses: 'actions/checkout@v7.0.1'
-      - name: 'Change to server module directory'
-        run: 'cd server'
       - name: 'Run maven test'
+        working-directory: 'server'
         run: './mvnw test'
       - name: 'Publish Surefire Test Report'
         if: success() || failure()
