@@ -3,6 +3,7 @@ ARG NODEJS_RUNTIME_IMAGE=gcr.io/distroless/nodejs24-debian13:nonroot
 FROM ${NODEJS_BUILDER_IMAGE} AS dependencies
 WORKDIR /app/clients
 COPY package*.json ./
+COPY config ./config
 COPY web/package*.json ./web/
 RUN --mount=type=cache,target=/root/.npm \
     npm ci --no-audit --no-fund
@@ -15,6 +16,7 @@ ENV NODE_ENV=${NODE_ENV}
 WORKDIR /app/clients
 COPY --from=dependencies /app/clients/node_modules ./node_modules
 COPY --from=dependencies /app/clients/web/node_modules ./web/node_modules
+COPY --from=dependencies /app/clients/config ./config
 COPY package*.json ./
 COPY web/package*.json ./web/
 COPY web ./web
@@ -24,9 +26,11 @@ RUN npm run web:build
 
 FROM ${NODEJS_RUNTIME_IMAGE}
 ARG NODE_ENV=production
+ARG VERSION=dev
 ENV NODE_ENV=${NODE_ENV}
 ENV HOSTNAME="0.0.0.0"
 ENV PORT=3000
+LABEL org.opencontainers.image.version=${VERSION}
 WORKDIR /app/clients/web
 USER nonroot:nonroot
 EXPOSE 3000

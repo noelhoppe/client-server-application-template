@@ -8,58 +8,22 @@ permissions: { }
 jobs:
   prettier:
     runs-on: 'ubuntu-26.04'
-    permissions:
-      # https://github.com/marketplace/actions/prettier-fix#permissions
-      contents: 'write'
-      issues: 'write'
     steps:
-      - name: 'Prettier Fix'
-        id: 'prettier-fix'
-        uses: 'WorkOfStan/prettier-fix@v1.1.7'
-        # https://github.com/marketplace/actions/prettier-fix
-        with:
-          # Note: This action is non-blocking, so the status remains green even when changes are proposed via a new branch.
-          # A notice message is displayed, and it is then up to you to either create a pull request to merge the changes or delete the branch.
-          commit-changes: 'false'
-          node-version: '24.18.0'
-          prettier-config-path: 'clients/web/.prettier.config.mts'
-      - name: 'Comment on PR if new branch was created'
-        uses: 'actions/github-script@v9.0.0'
-        # https://github.com/marketplace/actions/github-script?version=v9.0.0
-        with:
-          script: |
-            const branchName = "${{ steps.prettier-fix.outputs.branch-name }}";
-            const changedFiles = "${{ steps.prettier-fix.outputs.changed-files }}".replace(/,/g, '\n- ');
-            
-            const body = `⚠️ **Prettier Style Notice**\n\n` +
-                         `Formatting changes were automatically pushed to a new branch: \`${branchName}\`.\n\n` +
-                         `**Changed files:**\n- ${changedFiles}\n\n` +
-                         `Please review, create a pull request, or delete the branch if not needed.`;
-
-            // Check if a bot comment already exists to avoid spamming
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
-            });
-
-            const existingComment = comments.find(c => c.user.type === 'Bot' && c.body.includes('Prettier Style Notice'));
-
-            if (!existingComment) {
-              await github.rest.issues.createComment({
-                issue_number: context.payload.pull_request.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: body
-              });
-            }  
-  
+      - name: 'Checkout repository'
+        uses: 'actions/checkout@v7.0.1'
+      - name: 'Run prettier in webclient'
+        working-directory: 'clients/web'
+        run: |
+          npm ci
+          npm run prettier
   eslint:
     runs-on: 'ubuntu-26.04'
     permissions:
       checks: 'write'
       contents: 'read'
     steps:
+      - name: 'Checkout repository'
+        uses: 'actions/checkout@v7.0.1'
       - name: 'Run eslint with reviewdog'
         uses: 'reviewdog/action-eslint@v1.34.0'
         # https://github.com/marketplace/actions/run-eslint-with-reviewdog

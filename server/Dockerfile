@@ -12,9 +12,10 @@ RUN ./mvnw package
 
 FROM ${JAVA_RUNTIME_IMAGE}
 ARG SPRING_PROFILES_ACTIVE=prod
+ARG VERSION=dev
 ENV SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-LABEL maintainer="noelhoppe" \
-    version="0.0.1" \
+LABEL org.opencontainers.image.version=${VERSION} \
+    maintainer="noelhoppe" \
     environment=${SPRING_PROFILES_ACTIVE} \
     description="Runtime docker image for the server application."
 WORKDIR /app

@@ -1,0 +1,45 @@
+name: publish_tagged_images.yaml
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions: { }
+
+jobs:
+  validate_tag:
+    name: 'Validate semantic version tag'
+    runs-on: 'ubuntu-26.04'
+    permissions:
+      contents: 'read'
+    outputs:
+      version: '${{ steps.version.outputs.value }}'
+    steps:
+      - name: 'Validate v-prefixed Semantic Version'
+        id: 'version'
+        env:
+          TAG: '${{ github.ref_name }}'
+        run: |
+          version="${TAG#v}"
+          pattern='^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-((0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*)(\.(0|[1-9][0-9]*|[0-9]*[A-Za-z-][0-9A-Za-z-]*))*))?$'
+
+          if [[ "$TAG" == "$version" ]] || ! [[ "$version" =~ $pattern ]]; then
+            echo "Tag '$TAG' must be v-prefixed Semantic Versioning without build metadata." >&2
+            exit 1
+          fi
+
+          echo "value=$version" >> "$GITHUB_OUTPUT"
+
+  publish_images:
+    name: 'Publish release images'
+    needs:
+      - 'validate_tag'
+    uses: './.github/workflows/build_and_publish_images.yaml'
+    permissions:
+      contents: 'read'
+      packages: 'write'
+    with:
+      version: '${{ needs.validate_tag.outputs.version }}'
+      additional_version: '${{ github.ref_name }}'
+      push: true

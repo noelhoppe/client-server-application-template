@@ -1,7 +1,19 @@
 name: 'continous_integration.yaml'
 on:
-  - 'pull_request'
-  - 'workflow_dispatch'
+  pull_request:
+    types:
+      - 'opened'
+      - 'synchronize'
+      - 'reopened'
+      - 'edited'
+  push:
+    branches:
+      - 'main'
+  workflow_dispatch:
+
+concurrency:
+  group: '${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}'
+  cancel-in-progress: true
 
 permissions: { }
 
@@ -11,6 +23,24 @@ jobs:
     uses: './.github/workflows/detect_changes.yaml'
     permissions:
       contents: 'read'
+
+  validate_pr_title:
+    name: 'Validate Conventional Commit pull request title'
+    if: "${{ github.event_name == 'pull_request' }}"
+    runs-on: 'ubuntu-26.04'
+    permissions:
+      contents: 'read'
+    steps:
+      - name: 'Validate title'
+        env:
+          PR_TITLE: '${{ github.event.pull_request.title }}'
+        run: |
+          pattern='^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([A-Za-z0-9._/-]+\))?!?: .+$'
+
+          if ! [[ "$PR_TITLE" =~ $pattern ]]; then
+            echo "Pull request title must follow Conventional Commits, for example: feat(web): add profile page" >&2
+            exit 1
+          fi
 
   lint_server:
     name: 'Lint server'
@@ -30,8 +60,7 @@ jobs:
     uses: './.github/workflows/lint_web.yaml'
     permissions:
       checks: 'write'
-      contents: 'write'
-      issues: 'write'
+      contents: 'read'
 
   label_pr:
     name: 'Label pull request'
@@ -63,3 +92,65 @@ jobs:
     permissions:
       checks: 'write'
       contents: 'read'
+
+  preview_images:
+    name: 'Build pull request images'
+    needs:
+      - 'changes'
+      - 'validate_pr_title'
+      - 'lint_server'
+      - 'lint_web'
+      - 'test_server'
+    if: >-
+      ${{
+        always() &&
+        github.event_name == 'pull_request' &&
+        (needs.changes.outputs.server == 'true' || needs.changes.outputs.clients == 'true') &&
+        needs.validate_pr_title.result == 'success' &&
+        (needs.lint_server.result == 'success' || needs.lint_server.result == 'skipped') &&
+        (needs.lint_web.result == 'success' || needs.lint_web.result == 'skipped') &&
+        (needs.test_server.result == 'success' || needs.test_server.result == 'skipped')
+      }}
+    uses: './.github/workflows/build_and_publish_images.yaml'
+    permissions:
+      contents: 'read'
+      packages: 'write'
+    with:
+      version: 'pr-${{ github.event.pull_request.number }}-${{ github.event.pull_request.head.sha }}'
+      additional_version: 'pr-${{ github.event.pull_request.number }}'
+      push: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+
+  release:
+    name: 'Create release'
+    needs:
+      - 'changes'
+      - 'lint_server'
+      - 'lint_web'
+      - 'test_server'
+    if: >-
+      ${{
+        always() &&
+        github.event_name == 'push' &&
+        (needs.lint_server.result == 'success' || needs.lint_server.result == 'skipped') &&
+        (needs.lint_web.result == 'success' || needs.lint_web.result == 'skipped') &&
+        (needs.test_server.result == 'success' || needs.test_server.result == 'skipped')
+      }}
+    uses: './.github/workflows/release.yaml'
+    permissions:
+      contents: 'write'
+      issues: 'write'
+      pull-requests: 'write'
+
+  publish_release_images:
+    name: 'Publish release images'
+    needs:
+      - 'release'
+    if: "${{ needs.release.outputs.published == 'true' }}"
+    uses: './.github/workflows/build_and_publish_images.yaml'
+    permissions:
+      contents: 'read'
+      packages: 'write'
+    with:
+      version: '${{ needs.release.outputs.version }}'
+      additional_version: 'v${{ needs.release.outputs.version }}'
+      push: true

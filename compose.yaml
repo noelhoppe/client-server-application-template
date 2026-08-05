@@ -6,6 +6,7 @@ services:
         - JAVA_BUILDER_IMAGE=eclipse-temurin:25-alpine
         - JAVA_RUNTIME_IMAGE=gcr.io/distroless/java25-debian13:nonroot
         - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE:-prod}
+        - VERSION=${IMAGE_VERSION:-dev}
     container_name: server
     ports:
       - "8080:8080"
@@ -14,10 +15,11 @@ services:
       context: ./clients
       dockerfile: ./web/Dockerfile
       args:
-        - NODE_BUILDER_IMAGE=node:24.18.0-alpine3.23
-        - NODE_RUNTIME_IMAGE=gcr.io/distroless/nodejs24-debian13:nonroot
+        - NODEJS_BUILDER_IMAGE=node:24.18.0-alpine3.23
+        - NODEJS_RUNTIME_IMAGE=gcr.io/distroless/nodejs24-debian13:nonroot
         # The allowed values for NODE_ENV are: production, development and test.
         - NODE_ENV=production
+        - VERSION=${IMAGE_VERSION:-dev}
     container_name: web
     ports:
       - "3000:3000"

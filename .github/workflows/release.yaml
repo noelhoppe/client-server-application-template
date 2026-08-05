@@ -1,0 +1,49 @@
+name: release.yaml
+
+on:
+  workflow_call:
+    outputs:
+      published:
+        description: 'Whether semantic-release created a new release.'
+        value: '${{ jobs.release.outputs.published }}'
+      version:
+        description: 'The released semantic version without the v prefix.'
+        value: '${{ jobs.release.outputs.version }}'
+
+permissions: { }
+
+jobs:
+  release:
+    name: 'Create semantic release'
+    runs-on: 'ubuntu-26.04'
+    permissions:
+      contents: 'write'
+      issues: 'write'
+      pull-requests: 'write'
+    outputs:
+      published: '${{ steps.semantic.outputs.new_release_published }}'
+      version: '${{ steps.semantic.outputs.new_release_version }}'
+    steps:
+      - name: 'Checkout complete history'
+        uses: 'actions/checkout@v7.0.1'
+        with:
+          fetch-depth: 0
+
+      - name: 'Check release bootstrap'
+        id: 'bootstrap'
+        run: |
+          if git tag --list 'v[0-9]*' | grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$'; then
+            echo 'ready=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'ready=false' >> "$GITHUB_OUTPUT"
+            echo 'Skipping semantic-release: create and push the initial v0.1.0 tag first.'
+          fi
+
+      - name: 'Create GitHub release'
+        id: 'semantic'
+        if: "${{ steps.bootstrap.outputs.ready == 'true' }}"
+        uses: 'cycjimmy/semantic-release-action@b12c8f6015dc215fe37bc154d4ad456dd3833c90'
+        with:
+          semantic_version: '25'
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
