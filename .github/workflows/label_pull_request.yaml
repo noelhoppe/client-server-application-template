@@ -68,7 +68,7 @@ jobs:
               { key: 'area:server', enabled: inputs.server_changed === 'true', color: '1D76DB', description: 'Changes to the server module.' },
               { key: 'area:java', enabled: inputs.java_changed === 'true', color: '5319E7', description: 'Changes to Java code.' },
               { key: 'area:clients', enabled: inputs.clients_changed === 'true', color: '5319E7', description: 'Changes to the clients module.' },
-              { key: 'area:webclient', inputs.webclient_changed === 'true', color: '5319E7', description: 'Changes to the web client.' },
+              { key: 'area:webclient', enabled: inputs.webclient_changed === 'true', color: '5319E7', description: 'Changes to the web client.' },
               { key: 'area:skills', enabled: inputs.skills_changed === 'true', color: '5319E7', description: 'Changes to agent skills following the agentskills.io specification.' },
               { key: 'area:wiki', enabled: inputs.wiki_changed === 'true', color: 'FBCA04', description: 'Changes to repository knowledge base content following the Open Knowledgeop Format (OKF).' },
               { key: 'area:dependencies', enabled: inputs.dependencies_changed === 'true', color: 'D93F0B', description: 'Dependency or SDK changed' },
