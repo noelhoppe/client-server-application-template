@@ -13,6 +13,8 @@ jobs:
       contents: 'write'
       issues: 'write'
     steps:
+      - name: 'Checkout repository'
+        uses: 'actions/checkout@v7.0.1'
       - name: 'Prettier Fix'
         id: 'prettier-fix'
         uses: 'WorkOfStan/prettier-fix@v1.1.7'
@@ -22,7 +24,7 @@ jobs:
           # A notice message is displayed, and it is then up to you to either create a pull request to merge the changes or delete the branch.
           commit-changes: 'false'
           node-version: '24.18.0'
-          prettier-config-path: 'clients/web/.prettier.config.mts'
+          prettier-config-path: 'clients/web/prettier.config.mts'
       - name: 'Comment on PR if new branch was created'
         uses: 'actions/github-script@v9.0.0'
         # https://github.com/marketplace/actions/github-script?version=v9.0.0
@@ -60,6 +62,8 @@ jobs:
       checks: 'write'
       contents: 'read'
     steps:
+      - name: 'Checkout repository'
+        uses: 'actions/checkout@v4'
       - name: 'Run eslint with reviewdog'
         uses: 'reviewdog/action-eslint@v1.34.0'
         # https://github.com/marketplace/actions/run-eslint-with-reviewdog
