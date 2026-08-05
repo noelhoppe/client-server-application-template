@@ -11,6 +11,7 @@ jobs:
     permissions:
       # https://github.com/marketplace/actions/prettier-fix#permissions
       contents: 'write'
+      issues: 'write'
     steps:
       - name: 'Prettier Fix'
         id: 'prettier-fix'
@@ -24,6 +25,7 @@ jobs:
           prettier-config-path: 'clients/web/.prettier.config.mts'
       - name: 'Comment on PR if new branch was created'
         uses: 'actions/github-script@v9.0.0'
+        # https://github.com/marketplace/actions/github-script?version=v9.0.0
         with:
           script: |
             const branchName = "${{ steps.prettier-fix.outputs.branch-name }}";

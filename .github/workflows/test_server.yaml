@@ -1,0 +1,36 @@
+name: test_server.yaml
+on:
+  - 'workflow_call'
+  - 'workflow_dispatch'
+
+permissions: { }
+
+jobs:
+  test:
+    runs-on: 'ubuntu-26.04'
+    permissions:
+      checks: 'write'
+      contents: 'read'
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v7.0.1'
+        # https://github.com/marketplace/actions/checkout?version=v7.0.1
+      - name: 'Cache local maven repository'
+        uses: 'actions/cache@v6.1.0'
+        # https://github.com/marketplace/actions/cache?version=v6.1.0
+        with:
+          key: "${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}"
+          path: '~/.m2/repository'
+          restore-keys: |
+            "${{ runner.os }}-maven-"
+      - name: 'Run maven test'
+        working-directory: 'server'
+        run: './mvnw test'
+      - name: 'Publish Surefire Test Report'
+        if: success() || failure()
+        uses: 'ScalableCapital/action-surefire-report@v2.0.4'
+        with:
+          github_token: '${{ secrets.GITHUB_TOKEN }}'
+          fail_on_test_failures: 'true'
+          fail_if_no_tests: 'true'
+          ignore_flaky_tests: 'false'

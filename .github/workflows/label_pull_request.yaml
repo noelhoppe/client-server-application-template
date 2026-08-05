@@ -31,18 +31,23 @@ on:
         type: 'string'
   workflow_dispatch:
 
-permissions:
-  contents: 'read'
-  pull-requests: 'write'
-  issues: 'write'
+permissions: { }
 
 jobs:
   label_pull_request:
+    permissions:
+      contents: 'read'
+      pull-requests: 'write'
+      issues: 'write'
     if: "${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' }}"
     runs-on: 'ubuntu-26.04'
     steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v7.0.1'
+        # https://github.com/marketplace/actions/checkout?version=v7.0.1
       - name: 'Apply pull request labels'
         uses: 'actions/github-script@v9.0.0'
+        # https://github.com/marketplace/actions/github-script?version=v9.0.0
         with:
           script: |
             const inputs = {
@@ -63,7 +68,7 @@ jobs:
               { key: 'area:server', enabled: inputs.server_changed === 'true', color: '1D76DB', description: 'Changes to the server module.' },
               { key: 'area:java', enabled: inputs.java_changed === 'true', color: '5319E7', description: 'Changes to Java code.' },
               { key: 'area:clients', enabled: inputs.clients_changed === 'true', color: '5319E7', description: 'Changes to the clients module.' },
-              { key: 'area:webclient', inputs.webclient_changed === 'true', color: '5319E7', description: 'Changes to the web client.' },
+              { key: 'area:webclient', enabled: inputs.webclient_changed === 'true', color: '5319E7', description: 'Changes to the web client.' },
               { key: 'area:skills', enabled: inputs.skills_changed === 'true', color: '5319E7', description: 'Changes to agent skills following the agentskills.io specification.' },
               { key: 'area:wiki', enabled: inputs.wiki_changed === 'true', color: 'FBCA04', description: 'Changes to repository knowledge base content following the Open Knowledgeop Format (OKF).' },
               { key: 'area:dependencies', enabled: inputs.dependencies_changed === 'true', color: 'D93F0B', description: 'Dependency or SDK changed' },

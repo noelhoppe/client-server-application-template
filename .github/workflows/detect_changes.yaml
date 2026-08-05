@@ -42,10 +42,12 @@ jobs:
       dependencies: '${{ steps.filter.outputs.dependencies }}'
     steps:
       - name: 'Checkout'
-        uses: 'actions/checkout@v4'
+        uses: 'actions/checkout@v7.0.1'
+        # https://github.com/marketplace/actions/checkout?version=v7.0.1
       - name: 'Detect changed paths'
         id: 'filter'
-        uses: 'dorny/paths-filter@v3'
+        uses: 'dorny/paths-filter@v4.0.2'
+        # https://github.com/marketplace/actions/paths-changes-filter
         with:
           filters: |
             github:
