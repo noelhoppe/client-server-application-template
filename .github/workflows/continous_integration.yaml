@@ -60,8 +60,7 @@ jobs:
     uses: './.github/workflows/lint_web.yaml'
     permissions:
       checks: 'write'
-      contents: 'write'
-      issues: 'write'
+      contents: 'read'
 
   label_pr:
     name: 'Label pull request'
