@@ -47,6 +47,7 @@ jobs:
         # https://github.com/marketplace/actions/checkout?version=v7.0.1
       - name: 'Apply pull request labels'
         uses: 'actions/github-script@v9.0.0'
+        # https://github.com/marketplace/actions/github-script?version=v9.0.0
         with:
           script: |
             const inputs = {

@@ -17,6 +17,7 @@ jobs:
         # https://github.com/marketplace/actions/checkout?version=v7.0.1
       - name: 'Cache local maven repository'
         uses: 'actions/cache@v6.1.0'
+        # https://github.com/marketplace/actions/cache?version=v6.1.0
         with:
           key: "${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}"
           path: '~/.m2/repository'
