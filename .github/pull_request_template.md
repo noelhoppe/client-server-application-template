@@ -65,9 +65,6 @@ _In case your PR includes visual changes, please include before and after screen
       `clients/**/.nmvrc`, `server/**/pom.xml` or `server/.sdkmanrc`) - Dependency or SDK changed
 - [ ] I have assigned at least the minimum number of required reviewers to this pull request, see here for instructions:
   [Requesting a pull request review](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/requesting-a-pull-request-review)
-- [ ] I have written conventional commit messages,
-  see [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for more details.
-- [ ] Pull request title starts either with a verb in the present tense
-- (e.g., _"Add: "_, _"Fix: "_, _"Update: "_) or with a prefix indicating the type of change (e.g., _"Feature: "_, _"
-  Bugfix: "_, _"Hotfix: "_, _"Refactor: "_).
+- [ ] My pull request title follows [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), for example
+  `feat(web): add profile page` or `fix(server): reject invalid request`.
 - [ ] I have performed a self-review of my own code.

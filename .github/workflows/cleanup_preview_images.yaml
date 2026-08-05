@@ -1,0 +1,66 @@
+name: cleanup_preview_images.yaml
+
+on:
+  pull_request:
+    types:
+      - 'closed'
+
+permissions: { }
+
+jobs:
+  cleanup:
+    name: 'Delete pull request image versions'
+    runs-on: 'ubuntu-26.04'
+    permissions:
+      packages: 'write'
+    steps:
+      - name: 'Delete preview images'
+        uses: 'actions/github-script@v9.0.0'
+        env:
+          PR_TAG_PREFIX: 'pr-${{ github.event.pull_request.number }}'
+        with:
+          script: |
+            const prefix = process.env.PR_TAG_PREFIX;
+            const owner = context.repo.owner;
+            const packageNames = [`${context.repo.repo}-server`, `${context.repo.repo}-web`];
+            const ownerIsOrganization = context.payload.repository.owner.type === 'Organization';
+
+            for (const packageName of packageNames) {
+              const listRoute = ownerIsOrganization
+                ? 'GET /orgs/{org}/packages/{package_type}/{package_name}/versions'
+                : 'GET /users/{username}/packages/{package_type}/{package_name}/versions';
+              const deleteRoute = ownerIsOrganization
+                ? 'DELETE /orgs/{org}/packages/{package_type}/{package_name}/versions/{package_version_id}'
+                : 'DELETE /users/{username}/packages/{package_type}/{package_name}/versions/{package_version_id}';
+              const ownerParameter = ownerIsOrganization ? { org: owner } : { username: owner };
+
+              try {
+                const versions = await github.paginate(listRoute, {
+                  ...ownerParameter,
+                  package_type: 'container',
+                  package_name: packageName,
+                  per_page: 100,
+                });
+
+                for (const version of versions) {
+                  const tags = version.metadata?.container?.tags ?? [];
+                  if (!tags.some(tag => tag === prefix || tag.startsWith(`${prefix}-`))) {
+                    continue;
+                  }
+
+                  await github.request(deleteRoute, {
+                    ...ownerParameter,
+                    package_type: 'container',
+                    package_name: packageName,
+                    package_version_id: version.id,
+                  });
+                  core.info(`Deleted ${packageName} version ${version.id}.`);
+                }
+              } catch (error) {
+                if (error.status === 404) {
+                  core.info(`Package ${packageName} does not exist; nothing to clean up.`);
+                  continue;
+                }
+                throw error;
+              }
+            }
