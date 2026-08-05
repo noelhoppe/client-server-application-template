@@ -20,13 +20,14 @@ docker compose up
 
 ### Workflow Reference
 
-| Workflow                                                                   | Trigger                          | Goal                                                                                                                    |
-|----------------------------------------------------------------------------|----------------------------------|-------------------------------------------------------------------------------------------------------------------------|
-| [continous_integration.yaml](.github/workflows/continous_integration.yaml) | pull_request, workflow_dispatch  | Orchestrates the CI pipeline, detects affected areas, and calls reusable linting and PR-labeling workflows.             |
-| [detect_changes.yaml](.github/workflows/detect_changes.yaml)               | workflow_call, workflow_dispatch | Detects monorepo changes and exposes reusable change flags for CI orchestration and PR labeling.                        |
-| [label_pull_request.yaml](.github/workflows/label_pull_request.yaml)       | workflow_call, workflow_dispatch | Creates missing area labels and applies them to pull requests based on the detected changes.                            |
-| [lint_server.yaml](.github/workflows/lint_server.yaml)                     | workflow_call, workflow_dispatch | Enforce [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html) on the [server](server) codebase. |
-| [lint_web.yaml](.github/workflows/lint_web.yaml)                           | workflow_call, workflow_dispatch | Enforce [Prettier Style Guide](./clients/web/prettier.config.mts) on the [web client](clients/web) codebase.            |
+| Workflow                                                                   | Trigger                          | Goal                                                                                                                      |
+|----------------------------------------------------------------------------|----------------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| [continous_integration.yaml](.github/workflows/continous_integration.yaml) | pull_request, workflow_dispatch  | Orchestrates the CI pipeline, detects affected areas, and calls reusable linting, PR-labeling and server tests workflows. |
+| [detect_changes.yaml](.github/workflows/detect_changes.yaml)               | workflow_call, workflow_dispatch | Detects monorepo changes and exposes reusable change flags for CI orchestration and PR labeling.                          |
+| [label_pull_request.yaml](.github/workflows/label_pull_request.yaml)       | workflow_call, workflow_dispatch | Creates missing area labels and applies them to pull requests based on the detected changes.                              |
+| [lint_server.yaml](.github/workflows/lint_server.yaml)                     | workflow_call, workflow_dispatch | Enforce [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html) on the [server](server) codebase.   |
+| [lint_web.yaml](.github/workflows/lint_web.yaml)                           | workflow_call, workflow_dispatch | Enforce [Prettier Style Guide](./clients/web/prettier.config.mts) on the [web client](clients/web) codebase.              |
+| [test_server.yaml](.github/workflows/test_server.yaml)                     | workflow_call, workflow_dispatch | Runs the maven test lifecycle and publishes surefire test report                                                          |
 
 ## Contributing
 
