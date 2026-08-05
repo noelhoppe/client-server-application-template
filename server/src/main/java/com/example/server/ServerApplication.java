@@ -3,6 +3,9 @@ package com.example.server;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+/**
+ * The main entry point for the Spring Boot application.
+ */
 @SpringBootApplication
 public class ServerApplication {
 
