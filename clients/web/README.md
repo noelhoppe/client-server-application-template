@@ -88,14 +88,6 @@ The frontend **should not**:
 - Store authoritative application data locally.
 - Perform heavy computations that should be handled by the server.
 
-## Folder structure conventions
-
-```
-/app (Next.js App Router)
-/features
-    /<feature-name>
-```
-
 ## Deployment
 
 ### Deploy on Vercel
