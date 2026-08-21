@@ -108,7 +108,23 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ```
 /clients/web
-├── /app                                            # Nest.js App Router
+├── /src                                            # Next.js application source folder
+│   └── /app                                        # Next.js App Router
+│   |   └── /api                                    # Backend for Frontend (BFF) API routes
+|   │   |  └── /<feature-name>
+|   |   |         └── route.ts                                                           
+│   |   └── /<feature-name>                           
+|   │      └── page.tsx                             
+│   |   └── layout.tsx                              # Root Layout component
+│   |   └── page.tsx                                # Root Page component        
+│   └── /features                                   # Feature-based project structure                                   
+│       └── /<feature-name>                         # Feature-specific folder, keep naming consistent with server module if possible
+│           └── /ui                                 # Feature-specific UI components
+│           └── /services                           # Feature-specific services for API calls and business logic
+│           └── /dtos                               # Feature-specific data transfer objects (DTOs)
+│           └── /requests                           # Feature-specific request DTOs for API calls
+|           └── /responses                          # Feature-specific response DTOs for API calls
+|           └── /persistence                        # Feature-specific client-side persistence layer (e.g. local storage, IndexedDB)
 ├── /public                                         # Static assets
 ├── .gitignore                                      # Files to ignore in git version control
 ├── AGENTS.md                                       # Instructions for AI agents to work with this module
